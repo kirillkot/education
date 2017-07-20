@@ -25,32 +25,24 @@ type Dog struct {
 	BarkStrength int
 }
 
-func (dog *Dog) MakeNoise() {
-	barkStrength := dog.BarkStrength
-
-	if dog.mean {
-		barkStrength = barkStrength * 5
+func (animal *Animal) PerformNoise(strength int, sound string) {
+	if animal.mean == true {
+		strength = strength * 5
 	}
 
-	for bark := 0; bark < barkStrength; bark++ {
-		fmt.Println("BARK")
-	}
-
-	fmt.Println(" ")
-}
-
-func (cat *Cat) MakeNoise() {
-	meowStrength := cat.MeowStrength
-
-	if cat.Basics.mean == true {
-		meowStrength = meowStrength * 5
-	}
-
-	for meow := 0; meow < meowStrength; meow++ {
-		fmt.Printf("MEOW ")
+	for voice := 0; voice < strength; voice++ {
+		fmt.Printf("%s ", sound)
 	}
 
 	fmt.Println("")
+}
+
+func (dog *Dog) MakeNoise() {
+	dog.PerformNoise(dog.BarkStrength, "BARK")
+}
+
+func (cat *Cat) MakeNoise() {
+	cat.Basics.PerformNoise(cat.MeowStrength, "MEOW")
 }
 
 func main() {
@@ -61,5 +53,14 @@ func main() {
 				mean: true,
 			},
 			BarkStrength: 2,
+		})
+
+	MakeSomeNoise(
+		&Cat{
+			Basics: Animal{
+				Name: "Cat",
+				mean: false,
+			},
+			MeowStrength: 4,
 		})
 }
