@@ -19,7 +19,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 func needPin(h http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var pin string
-		if err := db.QueryRow("SELECT pin FROM pins").Scan(&pin); err != nil {
+		if err = db.QueryRow("SELECT pin FROM pins").Scan(&pin); err != nil {
 			http.Error(w, "database error", http.StatusInternalServerError)
 			return
 		}
