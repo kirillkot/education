@@ -1,56 +1,64 @@
 package main
 
 import (
-	"fmt"
+	"encoding/json"
+	"math/rand"
+	"os"
 )
 
-type People struct {
-	Human
-	Ability string
-}
-
+// Human struct for testing override methods
 type Human struct {
-	id          int32
-	age         int32
-	name        string
-	phoneNumber int32
+	ID   int    `json:"id"`
+	Age  int    `json:"age"`
+	Name string `json:"name"`
 }
 
-func (h *Human) UnmarshalJSON(b []byte) error {
-	fmt.Println("UnmarshalJSON")
+// UnmarshalJSON ovveride method for struct Human
+func (h *Human) UnmarshalJSON(data []byte) error {
+	type Alias Human
+	aux := &struct {
+		*Alias
+	}{
+		Alias: (*Alias)(h),
+	}
+
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+
 	return nil
 }
 
+// MarshalJSON override method for struct Human
 func (h *Human) MarshalJSON() ([]byte, error) {
-	fmt.Println("MarshalJSON")
-	return nil, nil
+	type Alias Human
+	return json.Marshal(&struct {
+		*Alias
+		ID int `json:"id"`
+	}{
+		Alias: (*Alias)(h),
+		ID:    rand.Int(),
+	})
 }
 
-// func parseJson(w http.ResponseWriter, r *http.Request) {
-// 	fmt.Println("ParseJson")
-// 	var man Human
-// 	err := json.NewDecoder(r.Body).Decode(&man)
-// 	if err != nil {
-// 		fmt.Println("err = ", err)
-// 	}
-// 	fmt.Println(man)
-// }
-
 func main() {
-	var men []People
-	// TestCases := []struct {
-	// 	Name       string
-	// 	Body       string
-	// 	CErr       error
-	// 	StatusCode int
-	// }{
-	// 	{Name: "invalid_body(immutable field)", Body: `[{ids: [1], topic: "topic"}]`, StatusCode: 400},
-	// }
-	//
-	// for _, testCase := range TestCases {
-	// 	r, _ := http.NewRequest("PUT", "http://fake-url/", strings.NewReader(testCase.Body))
-	// 	w := httptest.NewRecorder()
-	//
-	// 	parseJson(w, r)
-	// }
+	Tom := &Human{
+		Age:  20,
+		ID:   1,
+		Name: "Tom",
+	}
+
+	// Override MarshalJson with change params struct
+	_ = json.NewEncoder(os.Stdout).Encode(&Tom)
+
+	buf, err := json.Marshal(&Tom)
+	if err != nil {
+		panic(err)
+	}
+
+	var TomUnmarshal Human
+	e := json.Unmarshal(buf, &TomUnmarshal)
+	if e != nil {
+		panic(e)
+	}
 }
